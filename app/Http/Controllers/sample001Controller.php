@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+// 入力チェッククラス
+use App\Http\Requests\sample001Request;
+
+class sample001Controller extends Controller
+{
+	public function __construct()
+	{
+		
+	}
+
+	// メイン画面表示
+	public function index()
+	{
+		return view('sample001.post');
+	}
+	public function post(sample001Request $request ){
+	// public function post(Request $request ){
+		var_dump(__METHOD__.__LINE__);die;
+		var_dump($request->input('name'));
+
+		
+
+		// $temp = $this->validate($request,$validate_rule);
+		// var_dump($temp);
+
+		return view('sample001.post');
+	}
+}
