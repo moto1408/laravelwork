@@ -77,6 +77,9 @@
             </div>
             @endif
         -->
+        @if (!empty($method_name ))
+            {{ $method_name }}
+        @endif
             <table>
                 <form action="./sample001/post" method="post">
                     {{ csrf_field() }}

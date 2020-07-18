@@ -1,5 +1,5 @@
 <?php
-
+use Log;
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
