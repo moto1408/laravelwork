@@ -14,5 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/sample001', 'sample001Controller@index');
-Route::post('/sample001/post', 'sample001Controller@post');
+Route::get('/sample001', 'sample001Controller@index')->name('sample001.index');
+Route::post('/sample001/post', 'sample001Controller@post')->name('sample001.post');
