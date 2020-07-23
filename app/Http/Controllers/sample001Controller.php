@@ -13,13 +13,21 @@ class sample001Controller extends Controller
 {
 	public function __construct()
 	{
-		Log::debug('Debug Message');
+		// parent::__construct();
+		Log::debug(__FILE__ . ":" . __LINE__);
+		
 	}
 
 	// メイン画面表示
 	public function index()
 	{
-		return view('sample001.post');
+		return view('sample001.index');
+	}
+
+	// メイン画面表示
+	public function add()
+	{
+		return view('sample001.add');
 	}
 	// public function post(sample001Request $request ){
 	public function post(Request $request ){
@@ -34,9 +42,13 @@ class sample001Controller extends Controller
 		$validate_rule['age'] = 'numeric|between:0,150';
 
 		$validator = validator::make($request->all(),$validate_rule);
+
+		// エラー有無チェック
 		if ($validator->fails()) {
-            return redirect(route('sample001.index'))
-                        ->withErrors($validator)
+			return redirect(route('sample001.add'))
+						// バリデータエラーを付加する
+						->withErrors($validator)
+						// 入力データを付加する
                         ->withInput();
 		}
 		
