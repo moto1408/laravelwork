@@ -96,16 +96,16 @@
                             <input type="text" name="name" value="{{old('name')}}">
                         </td>
                     </tr>
-                    @if ($errors->has('mail'))
+                    @if ($errors->has('email'))
                     <tr>
                         <th>ERROR</th>
-                        <td>{{ $errors->first('mail') }}</td>
+                        <td>{{ $errors->first('email') }}</td>
                     </tr>
                     @endif
                     <tr>
                         <th>mail: </th>
                         <td>
-                            <input type="text" name="mail" value="{{old('mail')}}">
+                            <input type="text" name="email" value="{{old('email')}}">
                         </td>
                     </tr>
                     @if ($errors->has('age'))
