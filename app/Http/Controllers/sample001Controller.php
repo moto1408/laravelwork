@@ -46,7 +46,8 @@ class sample001Controller extends Controller
 	{
 		return view('sample001.add');
 	}
-	// public function post(sample001Request $request ){
+
+	// 登録処理
 	public function post(Request $request ){
 
 		// 入力チェック条件指定する
@@ -110,6 +111,7 @@ class sample001Controller extends Controller
 
 			// 登録実行
 			$ModelUser->save();
+			// throw new \Exception('意図したエラー');
 			// コミット
 			DB::commit();
 		}catch(Exception $e){
@@ -127,5 +129,22 @@ class sample001Controller extends Controller
 		// return view('sample001.post',compact('method_name'));
 		return redirect(route('sample001.index'));
 
+	}
+	// 削除
+	public function delete(Request $request){
+		$request->id;
+		// モデル呼び出し
+		$ModelUser = new User;
+		// トランザクション用意
+		DB::beginTransaction();
+		try{
+			$target = $ModelUser::find($request->id);
+			$target->delete();
+			DB::commit();
+		}catch(Exception $e){
+			// ロールバック
+			DB::rollback();
+		}
+		return redirect(route('sample001.index'));
 	}
 }

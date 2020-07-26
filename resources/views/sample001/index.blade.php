@@ -41,7 +41,7 @@
         </div>
         <div class="row mt-5">
             <div class="clearfix w-100">
-                <button type="submit" class="btn btn-primary float-right" onclick="location.href='{{ route('sample001.add') }}';return false;">新規登録</button>
+                <button type="submit" class="btn btn-warning float-right" onclick="location.href='{{ route('sample001.add') }}';return false;">新規登録</button>
             </div>
         </div>
         
@@ -50,23 +50,24 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>編集</th>
                             <th>名前</th>
                             <th>メール</th>
                             <th>年齢</th>
                             <th>新規登録日</th>
                             <th>最終更新日</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>                        
                         @foreach ($recodes as $recode)
                         <tr>
-                            <td><button type="button" class="btn btn-warning" onclick="alert('{{ $recode->id }}');">編集</button></td>
                             <td>{{ $recode->name }}</td>
                             <td>{{ $recode->email }}</td>
                             <td>{{ $recode->age }}</td>
                             <td>{{ $recode->created_at }}</td>
                             <td>{{ $recode->updated_at }}</td>
+                            <td><button type="button" class="btn btn-primary" onclick="alert('{{ $recode->id }}');">編集</button></td>
+                            <td><button type="button" class="btn btn-danger" onclick="alert('{{ $recode->id }}');location.href=''">削除</button></td>
                         </tr>
                         @endforeach
                     </tbody>
