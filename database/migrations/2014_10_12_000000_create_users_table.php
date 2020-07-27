@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('password')->nullable(false)->comment('パスワード');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes()->comment('削除フラグ');
         });
     }
 

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Laravel</title>
 
@@ -14,6 +15,11 @@
     <script src="./bootstrap/js/bootstrap.js"></script>
     <script>
     $(document).ready(function(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         $('#delete_btn').on('click',function(event){
             var id = $(this).data('id');
             
@@ -23,22 +29,28 @@
                 ,type: 'post'
                 ,data:
                 {
-                    'ui_rank' : $ui_rank
-                    ,'message' : $message
+                    'id' : id
                 }
                 ,dataType: "json"
                 // 成功
-                ,success: function(data) 
-                {
-                    $(".anke").html("<p><strong>アンケート、ご協力ありがとうございました～。</strong></p>");
-                    alert("ご協力ありがとうございます！\n今後もがんばりますっ！");
-                },
-                // エラー
-                error: function(err) {
-                    alert('通信エラーが発生');
-                    console.log(err);
-                }
+                
+            }).done(function(data,textStatus,jqXHR){
+                console.log("成功");
+                console.log(data,textStatus,jqXHR);
+            }).fail(function(jqXHR,textStatus,errorThrown){
+                console.log("失敗");
+                console.log(jqXHR,textStatus,errorThrown);
             });
+            // success: function(data) 
+            //     {
+            //         console.log(data);
+            //         alert("削除しました。");
+            //     },
+            //     // エラー
+            //     error: function(err) {
+            //         alert('通信エラーが発生');
+            //         console.log(err);
+            //     };
                 
         });
     });

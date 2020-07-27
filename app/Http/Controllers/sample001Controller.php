@@ -147,4 +147,31 @@ class sample001Controller extends Controller
 		}
 		return redirect(route('sample001.index'));
 	}
+	// 削除
+	public function ajaxDelete(Request $request){
+		
+		$request->id;
+		// モデル呼び出し
+		$ModelUser = new User;
+		// トランザクション用意
+		DB::beginTransaction();
+
+		
+
+		$responseParam = array();
+		try{
+			$target = $ModelUser::find($request->id);
+			$target->delete();
+			DB::commit();
+			$responseParam['resulet'] = 'success';
+		}catch(Exception $e){
+			$responseParam['resulet'] = 'failure';
+			// ロールバック
+			DB::rollback();
+		}
+		return response()->json([
+            $responseParam
+         ]);
+		
+	}
 }
