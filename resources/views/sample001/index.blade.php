@@ -1,22 +1,52 @@
 <!doctype html>
 <html lang="{{ app()->getLocale() }}">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+    <title>Laravel</title>
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
-        <script src="./js/jquery-3.5.1.js"></script>
-        <script src="./bootstrap/js/bootstrap.js"></script>
-        
-        
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <script src="./js/jquery-3.5.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    <script>
+    $(document).ready(function(){
+        $('#delete_btn').on('click',function(event){
+            var id = $(this).data('id');
+            
+            $.ajax(
+            {
+                url: '{{ route('sample001ajax.delete') }}'
+                ,type: 'post'
+                ,data:
+                {
+                    'ui_rank' : $ui_rank
+                    ,'message' : $message
+                }
+                ,dataType: "json"
+                // 成功
+                ,success: function(data) 
+                {
+                    $(".anke").html("<p><strong>アンケート、ご協力ありがとうございました～。</strong></p>");
+                    alert("ご協力ありがとうございます！\n今後もがんばりますっ！");
+                },
+                // エラー
+                error: function(err) {
+                    alert('通信エラーが発生');
+                    console.log(err);
+                }
+            });
+                
+        });
+    });
+    </script>
+    
 
-        
-    </head>
+    
+</head>
 <body>
     <div class="container">
         <div class="row">
@@ -67,7 +97,7 @@
                             <td>{{ $recode->created_at }}</td>
                             <td>{{ $recode->updated_at }}</td>
                             <td><button type="button" class="btn btn-primary" onclick="alert('{{ $recode->id }}');">編集</button></td>
-                            <td><button type="button" class="btn btn-danger" onclick="alert('{{ $recode->id }}');location.href=''">削除</button></td>
+                            <td><button type="button" class="btn btn-danger" id="delete_btn" data-id="{{ $recode->id }}">削除</button></td>
                         </tr>
                         @endforeach
                     </tbody>

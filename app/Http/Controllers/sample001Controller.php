@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 // 入力チェッククラス
 use App\Http\Requests\sample001Request;
 
-use App\User;
+use App\Models\User;
 
 class sample001Controller extends Controller
 {
