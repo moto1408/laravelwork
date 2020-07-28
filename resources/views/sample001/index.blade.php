@@ -10,9 +10,9 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
-    <script src="./js/jquery-3.5.1.js"></script>
-    <script src="./bootstrap/js/bootstrap.js"></script>
+    <link href="{{ asset('/bootstrap/css/bootstrap.css') }}" rel="stylesheet" type="text/css">
+    <script src="{{ asset('/js/jquery-3.5.1.js') }}"></script>
+    <script src="{{ asset('/bootstrap/js/bootstrap.js') }}"></script>
     <script>
     $(document).ready(function(){
         $.ajaxSetup({
@@ -20,37 +20,41 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $('#delete_btn').on('click',function(event){
+        $('.modify_btn').on('click',function(event){
             var id = $(this).data('id');
             
-            $.ajax(
-            {
-                url: '{{ route('sample001ajax.delete') }}'
-                ,type: 'post'
-                ,data:
+            location.href = '{{route('sample001.modify')}}?id=' + id;
+        });
+        $('.delete_btn').on('click',function(event){
+            var id = $(this).data('id');
+            
+            var check_flg = confirm('削除してよろしいですか？');
+            if(check_flg == true){
+                $.ajax(
                 {
-                    'id' : id
-                }
-                ,dataType: "json"
-                // 成功
-                
-            }).done(function(data,textStatus,jqXHR){
-                console.log("成功");
-                console.log(data,textStatus,jqXHR);
-            }).fail(function(jqXHR,textStatus,errorThrown){
-                console.log("失敗");
-                console.log(jqXHR,textStatus,errorThrown);
-            });
-            // success: function(data) 
-            //     {
-            //         console.log(data);
-            //         alert("削除しました。");
-            //     },
-            //     // エラー
-            //     error: function(err) {
-            //         alert('通信エラーが発生');
-            //         console.log(err);
-            //     };
+                    url: '{{ route('sample001ajax.delete') }}'
+                    ,type: 'post'
+                    ,data:
+                    {
+                        'id' : id
+                    }
+                    ,dataType: "json"
+                    // 成功
+                    
+                }).done(function(data,textStatus,jqXHR){
+                    console.log("成功");
+                    console.log(data,textStatus,jqXHR);
+
+                    // フェードアウトアニメーション
+                    $('[data-area-id="' + id + '"]').fadeOut(500,function(){
+                        $(this).remove();
+                    });
+                }).fail(function(jqXHR,textStatus,errorThrown){
+                    console.log("失敗");
+                    console.log(jqXHR,textStatus,errorThrown);
+                });
+            }
+            
                 
         });
     });
@@ -102,14 +106,14 @@
                     </thead>
                     <tbody>                        
                         @foreach ($recodes as $recode)
-                        <tr>
+                        <tr data-area-id="{{ $recode->id }}">
                             <td>{{ $recode->name }}</td>
                             <td>{{ $recode->email }}</td>
                             <td>{{ $recode->age }}</td>
                             <td>{{ $recode->created_at }}</td>
                             <td>{{ $recode->updated_at }}</td>
-                            <td><button type="button" class="btn btn-primary" onclick="alert('{{ $recode->id }}');">編集</button></td>
-                            <td><button type="button" class="btn btn-danger" id="delete_btn" data-id="{{ $recode->id }}">削除</button></td>
+                            <td><button type="button" class="btn btn-primary modify_btn" data-id="{{ $recode->id }}">編集</button></td>
+                            <td><button type="button" class="btn btn-danger delete_btn" data-id="{{ $recode->id }}">削除</button></td>
                         </tr>
                         @endforeach
                     </tbody>

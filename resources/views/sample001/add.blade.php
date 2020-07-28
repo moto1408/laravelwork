@@ -84,6 +84,10 @@
             <table>
                 <form action="{{ route('sample001.post') }}" method="post">
                     {{ csrf_field() }}
+                    
+                    @if (!empty($recodes->id))
+                        <input type="hidden" name='id' value='{{ $recodes->id }}'>
+                    @endif
 
                     @if ($errors->has('name'))
                     <tr>
@@ -94,7 +98,7 @@
                     <tr>
                         <th>name: </th>
                         <td>
-                            <input type="text" name="name" value="{{old('name')}}">
+                            <input type="text" name="name" value="{{ old('name', !empty($recodes->name) ? $recodes->name : '' ) }}">
                         </td>
                     </tr>
                     @if ($errors->has('email'))
@@ -106,7 +110,7 @@
                     <tr>
                         <th>mail: </th>
                         <td>
-                            <input type="text" name="email" value="{{old('email')}}">
+                            <input type="text" name="email" value="{{old('email', !empty($recodes->email) ? $recodes->email : '' ) }}">
                         </td>
                     </tr>
                     @if ($errors->has('age'))
@@ -118,7 +122,7 @@
                     <tr>
                         <th>age: </th>
                         <td>
-                            <input type="number" name="age" value="{{old('age')}}">
+                            <input type="number" name="age" value="{{old('age', !empty($recodes->age) ? $recodes->age : '' ) }}">
                         </td>
                     </tr>
                     <tr>

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 // 入力チェッククラス
 use App\Http\Requests\sample001Request;
 
-use App\Models\User;
+use App\Http\Models\User;
 
 class sample001Controller extends Controller
 {
@@ -41,10 +41,19 @@ class sample001Controller extends Controller
 		return view('sample001.index',compact('recodes'));
 	}
 
-	// メイン画面表示
+	// 新規登録画面表示
 	public function add()
 	{
 		return view('sample001.add');
+	}
+
+	// 更新画面表示
+	public function modify(Request $request)
+	{
+		$id = $request->input('id');
+		$recodes = User::find($id)->first();
+		
+		return view('sample001.add',compact('recodes'))->withInput($recodes);
 	}
 
 	// 登録処理
@@ -147,6 +156,9 @@ class sample001Controller extends Controller
 		}
 		return redirect(route('sample001.index'));
 	}
+	/**
+	 * Ajax fuction
+	 */
 	// 削除
 	public function ajaxDelete(Request $request){
 		

@@ -93,7 +93,7 @@
                     <tr>
                         <th>name: </th>
                         <td>
-                            <input type="text" name="name" value="{{old('name')}}">
+                            <input type="text" name="name" value="{{old('name', !empty($recodes('name')) ? $recodes('name') : '' )}}">
                         </td>
                     </tr>
                     @if ($errors->has('mail'))
@@ -105,7 +105,7 @@
                     <tr>
                         <th>mail: </th>
                         <td>
-                            <input type="text" name="mail" value="{{old('mail')}}">
+                            <input type="text" name="mail" value="{{old('mail', !empty($recodes('email')) ? $recodes('email') : '' )}}">
                         </td>
                     </tr>
                     @if ($errors->has('age'))
@@ -117,7 +117,7 @@
                     <tr>
                         <th>age: </th>
                         <td>
-                            <input type="number" name="age" value="{{old('age')}}">
+                            <input type="number" name="age" value="{{old('age', !empty($recodes('age')) ? $recodes('age') : '' )}}">
                         </td>
                     </tr>
                     <tr>
