@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Log;
+Use Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -48,10 +49,10 @@ class sample001Controller extends Controller
 	}
 
 	// 更新画面表示
-	public function modify(Request $request)
+	public function update(Request $request)
 	{
 		$id = $request->input('id');
-		$recodes = User::find($id)->first();
+		$recodes = User::find($id);
 		
 		return view('sample001.add',compact('recodes'))->withInput($recodes);
 	}
@@ -59,12 +60,15 @@ class sample001Controller extends Controller
 	// 登録処理
 	public function post(Request $request ){
 
+		$id = $request->input('id','');
+		$user = User::find($id);
+		
 		// 入力チェック条件指定する
 		$validate_rule;
 		// 名前｜必須
 		$validate_rule['name'] = 'required';
 		// メール｜フォーマット
-		$validate_rule['email'] = 'required|email|unique:users,email';
+		$validate_rule['email'] = !empty($user->id) ? 'required|email|unique:users,email,' . $user->id . ',id' : 'required|email|unique:users,email';
 		//　年齢｜数値、0～150
 		$validate_rule['age'] = 'numeric|between:0,150';
 
@@ -103,23 +107,46 @@ class sample001Controller extends Controller
 		$ModelUser = new User;
 		// トランザクション用意
 		DB::beginTransaction();
-		try{
-			// 各値をセットする
-			// 名前
-			$ModelUser->name = $request->name;
-			// メール
-			$ModelUser->email = $request->email;
-			// 年齢
-			$ModelUser->age = $request->age;
-			// パスワード
-			$ModelUser->password = '';
-			// 登録日時
-			$ModelUser->created_at = time();
-			// 更新日時
-			$ModelUser->updated_at = time();
+		
 
-			// 登録実行
-			$ModelUser->save();
+		try{
+			$param = array();
+
+			// カラム一覧を取得する
+			$colums = Schema::getColumnListing('users');
+			// 主キー取得する
+			$primaryKey = $ModelUser->getKeyName();
+			unset($colums[$primaryKey]);
+
+			// カラムと一致するPOST値を取得する
+			foreach($colums as $value)
+			{
+				if($request->has($value))
+				{
+					$param[$value] = $request->input($value);
+				}
+			}
+
+			// $ModelUser->fill($param);
+			// 各値をセットする
+			// idがある場合（更新）
+			if(!empty($id))
+			{
+				$param['password'] = !empty($param['password']) ? $param['password'] : "";
+				$param['updated_at'] = date("Y-m-d H:i:s");
+				$ModelUser
+					->where($primaryKey,$request->input($primaryKey))
+					->update($param);
+			}
+			else
+			{
+				$param['password'] = !empty($param['password']) ? $param['password'] : "";
+				$param['created_at'] = date("Y-m-d H:i:s");
+				$param['updated_at'] = date("Y-m-d H:i:s");
+				$ModelUser->insert($param);
+			}
+			
+			
 			// throw new \Exception('意図したエラー');
 			// コミット
 			DB::commit();
@@ -166,9 +193,7 @@ class sample001Controller extends Controller
 		// モデル呼び出し
 		$ModelUser = new User;
 		// トランザクション用意
-		DB::beginTransaction();
-
-		
+		DB::beginTransaction();		
 
 		$responseParam = array();
 		try{

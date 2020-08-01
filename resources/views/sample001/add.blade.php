@@ -86,7 +86,7 @@
                     {{ csrf_field() }}
                     
                     @if (!empty($recodes->id))
-                        <input type="hidden" name='id' value='{{ $recodes->id }}'>
+                        <input type="hidden" name="id" value="{{ $recodes->id }}">
                     @endif
 
                     @if ($errors->has('name'))

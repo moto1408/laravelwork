@@ -23,7 +23,7 @@
         $('.modify_btn').on('click',function(event){
             var id = $(this).data('id');
             
-            location.href = '{{route('sample001.modify')}}?id=' + id;
+            location.href = '{{route('sample001.update')}}?id=' + id;
         });
         $('.delete_btn').on('click',function(event){
             var id = $(this).data('id');

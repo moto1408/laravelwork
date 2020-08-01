@@ -17,6 +17,6 @@ Route::get('/', function () {
 Route::any('/sample001', 'sample001Controller@index')->name('sample001.index');
 Route::get('/sample001/add', 'sample001Controller@add')->name('sample001.add');
 Route::post('/sample001/post', 'sample001Controller@post')->name('sample001.post');
-Route::get('/sample001/modify', 'sample001Controller@modify')->name('sample001.modify');
+Route::get('/sample001/update', 'sample001Controller@update')->name('sample001.update');
 Route::post('/sample001/ajaxDelete', 'sample001Controller@ajaxDelete')->name('sample001ajax.delete');
 
