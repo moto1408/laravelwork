@@ -28,126 +28,67 @@ class sample001Controller extends Controller
 
 		$where = array();
 		if(!empty($request)){
-			$name = $request->input('name');
-			$email = $request->input('email');
+			$name = $request->input('name','');
+			$email = $request->input('email','');
 			$where[] = array('name','like','%' . $name . '%');
 			$where[] = array('email','like','%' . $email . '%');
 		}
 		
+		$recodes = User::where($where)
+						->get();
 		
-		$recodes = DB::table('users')->where($where)->get();
-		
-		$recodes = User::all();
-		// var_dump($neko);
 		return view('sample001.index',compact('recodes'));
 	}
 
-	// 新規登録画面表示
+	/**
+	 * 新規登録画面を表示する
+	 */
 	public function add()
 	{
+		// テンプレート指定する
 		return view('sample001.add');
 	}
 
-	// 更新画面表示
+	/**
+	 * 更新登録画面を表示する
+	 */
 	public function update(Request $request)
 	{
 		$id = $request->input('id');
 		$recodes = User::find($id);
-		
-		return view('sample001.add',compact('recodes'))->withInput($recodes);
+		// テンプレート指定する、IDと一致するデータを画面へ値渡しする
+		return view('sample001.add',compact('recodes'));
 	}
 
-	// 登録処理
+	// 登録・更新処理
 	public function post(Request $request ){
 
+		// idを取得する
 		$id = $request->input('id','');
-		$user = User::find($id);
-		
-		// 入力チェック条件指定する
-		$validate_rule;
-		// 名前｜必須
-		$validate_rule['name'] = 'required';
-		// メール｜フォーマット
-		$validate_rule['email'] = !empty($user->id) ? 'required|email|unique:users,email,' . $user->id . ',id' : 'required|email|unique:users,email';
-		//　年齢｜数値、0～150
-		$validate_rule['age'] = 'numeric|between:0,150';
+		// 入力チェック定義を取得する
+		$validate_rule = $this->getValidate($id);
 
+		// 入力チェックを実行する
 		$validator = validator::make($request->all(),$validate_rule);
 
 		// エラー有無チェック
 		if ($validator->fails()) {
+			// エラーリダイレクト先を指定する（入力画面へリダイレクトする）
 			return redirect(route('sample001.add'))
 						// バリデータエラーを付加する
 						->withErrors($validator)
 						// 入力データを付加する
                         ->withInput();
 		}
-		
-		// $param = array();
-		// $param['name'] = $request->input('name');
-		// $param['email'] = $request->input('email');
-		// $param['age'] = $request->input('age');
-		// $param['password'] = '';
-		// $param = [
-		// 	'name' => $request->input('name'),
-		// 	'email' => $request->input('email'),
-		// 	'age' => $request->input('age'),
-		// 	'password' => ''
-		// ];
-
-		// $insert_sql = 
-		// 	"INSERT INTO users"
-		// 		. "( name, email, age, password)"
-		// 	. "VALUES "
-		// 		. "( :name, :email, :age, :password);";
-		// DB::insert($insert_sql,$param);
-		// DB::table('users')->insert($param);
 
 		// モデル呼び出し
 		$ModelUser = new User;
 		// トランザクション用意
 		DB::beginTransaction();
 		
-
 		try{
-			$param = array();
-
-			// カラム一覧を取得する
-			$colums = Schema::getColumnListing('users');
-			// 主キー取得する
-			$primaryKey = $ModelUser->getKeyName();
-			unset($colums[$primaryKey]);
-
-			// カラムと一致するPOST値を取得する
-			foreach($colums as $value)
-			{
-				if($request->has($value))
-				{
-					$param[$value] = $request->input($value);
-				}
-			}
-
-			// $ModelUser->fill($param);
-			// 各値をセットする
-			// idがある場合（更新）
-			if(!empty($id))
-			{
-				$param['password'] = !empty($param['password']) ? $param['password'] : "";
-				$param['updated_at'] = date("Y-m-d H:i:s");
-				$ModelUser
-					->where($primaryKey,$request->input($primaryKey))
-					->update($param);
-			}
-			else
-			{
-				$param['password'] = !empty($param['password']) ? $param['password'] : "";
-				$param['created_at'] = date("Y-m-d H:i:s");
-				$param['updated_at'] = date("Y-m-d H:i:s");
-				$ModelUser->insert($param);
-			}
-			
-			
-			// throw new \Exception('意図したエラー');
+			// データ登録・更新を行う
+			$ModelUser->upsert($request,$id);
 			// コミット
 			DB::commit();
 		}catch(Exception $e){
@@ -155,16 +96,8 @@ class sample001Controller extends Controller
 			DB::rollback();
 		}
 		
-
-		
-		
-		$method_name = __METHOD__;
-		// $temp = $this->validate($request,$validate_rule);
-		// var_dump($temp);
-		// return view('sample001.post');
-		// return view('sample001.post',compact('method_name'));
+		// 一覧へリダイレクトする
 		return redirect(route('sample001.index'));
-
 	}
 	// 削除
 	public function delete(Request $request){
@@ -210,5 +143,20 @@ class sample001Controller extends Controller
             $responseParam
          ]);
 		
+	}
+	// 登録・更新処理
+	private function getValidate($id=null){
+		$user = User::find($id);
+
+		// 入力チェック条件指定する
+		$validate_rule;
+		// 名前｜必須
+		$validate_rule['name'] = 'required';
+		// メール｜フォーマット
+		$validate_rule['email'] = !empty($user->id) ? 'required|email|unique:users,email,' . $user->id . ',id' : 'required|email|unique:users,email';
+		//　年齢｜数値、0～150
+		$validate_rule['age'] = 'numeric|between:0,150';
+
+		return $validate_rule;
 	}
 }
