@@ -12,10 +12,23 @@ class sampleAsynController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
-    }
+    // メイン画面表示
+	public function index(Request $request=null)
+	{
+
+		$where = array();
+		if(!empty($request)){
+			$name = $request->input('name','');
+			$email = $request->input('email','');
+			$where[] = array('name','like','%' . $name . '%');
+			$where[] = array('email','like','%' . $email . '%');
+		}
+		
+		$recodes = User::where($where)
+						->get();
+		
+		return view('sampleAsyn.index',compact('recodes'));
+	}
 
     /**
      * Show the form for creating a new resource.
