@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Models\User;
 use Illuminate\Http\Request;
+use log;
 
 class sampleAsynController extends Controller
 {
@@ -15,20 +16,48 @@ class sampleAsynController extends Controller
     // メイン画面表示
 	public function index(Request $request=null)
 	{
-
-		$where = array();
-		if(!empty($request)){
-			$name = $request->input('name','');
-			$email = $request->input('email','');
-			$where[] = array('name','like','%' . $name . '%');
-			$where[] = array('email','like','%' . $email . '%');
-		}
-		
-		$recodes = User::where($where)
-						->get();
+		// モデル呼び出し
+        $ModelUser = new User;
+        $recodes = array();
+        $recodes =  $ModelUser->getTableData($request);
 		
 		return view('sampleAsyn.index',compact('recodes'));
-	}
+    }
+    /**
+     * 非同期通信検索処理
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return Json
+     */
+    public function ajaxSearch(Request $request)
+    {
+        try{
+            // モデル呼び出し
+		    $ModelUser = new User;
+            
+            // 検索実行
+            $recodes = array();
+            $recodes =  $ModelUser->getTableData($request);
+            
+            
+            // 返答値を準備する
+            $response = array();
+            $response['list'] = $recodes;
+            $response['result'] = 'success';
+            $response['message'] = '検索に成功しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }catch(\Exception $e){
+            \Log::info($e);
+            // 返答値を準備する
+            $response = array();
+            $response['list'] = array();
+            $response['result'] = 'failure';
+            $response['message'] = '通信に失敗しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }
+    }
 
     /**
      * Show the form for creating a new resource.

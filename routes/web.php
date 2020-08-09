@@ -22,3 +22,4 @@ Route::post('/sample001/ajaxDelete', 'sample001Controller@ajaxDelete')->name('sa
 
 Route::any('/sampleAsyn', 'sampleAsynController@index')->name('sampleAsyn.index');
 Route::any('/sampleAsynAjax', 'sampleAsynController@index')->name('sampleAsynAjax.index');
+Route::post('/sampleAsyn/ajax/search', 'sampleAsynController@ajaxSearch')->name('sampleAsyn.ajax.ajaxSearch');

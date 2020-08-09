@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Models;
+
 Use Schema;
+Use DB;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 // 論理削除
@@ -13,6 +15,20 @@ class User extends Model
     // 論理削除の利用を宣言
     use SoftDeletes;
 
+    public function getTableData(Request $request=null){
+
+        // 条件を取得
+        $where = array();
+        $name = $request->input('name','');
+        $email = $request->input('email','');
+        $where[] = array('name','like','%' . $name . '%');
+        $where[] = array('email','like','%' . $email . '%');
+        // 検索を実行する
+        $recodes = $this->select([DB::raw('SQL_CALC_FOUND_ROWS *')])
+                        ->where($where)
+                        ->get();
+        return $recodes;
+    }
     /**
      * 新規登録・更新登録を行う関数
      * request Request 

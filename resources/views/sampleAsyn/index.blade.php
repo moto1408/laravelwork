@@ -20,48 +20,94 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $('.search_btn').on('click',function(event){
-            var id = $(this).data('id');
-            alert('検索');
+        var search_event = function(event){
+            var name = $('#name').val();
+            var email = $('#email').val();
+            
             $('.data_area').empty().fadeOut(300);
 
-            
-            var data = [{id:"1",name:"太郎",email:"info+002@example.com",age:"19",created_at:"2020-08-08 04:11",updated_at:"2020-08-18 04:11"},{id:"2",name:"太郎",email:"info+002@example.com",age:"19",created_at:"2020-08-08 04:11",updated_at:"2020-08-18 04:11"}];
-            $.each(data,function(index,val){
-                var name = $('<td></td>',{class:"col-xs-2"}).text(val["name"]);
-                var email = $('<td></td>',{class:"col-xs-2"}).text(val["email"]);
-                var age = $('<td></td>',{class:"col-xs-1"}).text(val["age"]);
-                var created_at = $('<td></td>',{class:"col-xs-2"}).text(val["created_at"]);
-                var updated_at = $('<td></td>',{class:"col-xs-2"}).text(val["updated_at"]);
-                var modify_btn = $('<td></td>',{class:"col-xs-1"}).append($('<button>',{
-                    class : "btn btn-primary btn-sm modify_btn",
-                    "data-id" : val["id"],
-                    type:"button"
-                }).text("編集"));
-                var delete_btn = $('<td></td>',{class:"col-xs-2"}).append($('<button></button>',{
-                    class : "btn btn-danger btn-sm delete_btn",
-                    "data-id" : val["id"],
-                    type:"button"
-                }).text("削除"));
-                var data_recode = $('<tr></tr>',{
-                'data-area-id':val["id"]
-                }).append(name).append(email).append(age).append(created_at).append(updated_at).append(modify_btn).append(delete_btn);
-                $('.data_area').append(
-                    data_recode
-                ).fadeIn(300);
-                console.log(index,val);
+            $.ajax(
+            {
+                url: '{{ route('sampleAsyn.ajax.ajaxSearch') }}'
+                ,type: 'post'
+                ,data:
+                {
+                    'name'  : name,
+                    'email' : email
+                }
+                ,dataType: "json"
+                // 成功
+                
+            }).done(function(data,textStatus,jqXHR){
+                console.log("成功");
+                console.log([data,textStatus,jqXHR]);
+                setData(data);
+                
+            }).fail(function(jqXHR,textStatus,errorThrown){
+                console.log("失敗");
+                console.log([jqXHR,textStatus,errorThrown]);
             });
-            
-            
-            // location.href = '{{route('sample001.update')}}?id=' + id;
             return false;
-        });
-        $('.modify_btn').on('click',function(event){
-            var id = $(this).data('id');
+        }
+        // $('.search_btn').on('click',function(event){
+        //     var name = $('#name').val();
+        //     var email = $('#email').val();
             
-            location.href = '{{route('sample001.update')}}?id=' + id;
-        });
-        $('.delete_btn').on('click',function(event){
+        //     $('.data_area').empty().fadeOut(300);
+
+        //     $.ajax(
+        //     {
+        //         url: '{{ route('sampleAsyn.ajax.ajaxSearch') }}'
+        //         ,type: 'post'
+        //         ,data:
+        //         {
+        //             'name'  : name,
+        //             'email' : email
+        //         }
+        //         ,dataType: "json"
+        //         // 成功
+                
+        //     }).done(function(data,textStatus,jqXHR){
+        //         console.log("成功");
+        //         console.log(data,textStatus,jqXHR);
+        //         setData(data);
+                
+        //     }).fail(function(jqXHR,textStatus,errorThrown){
+        //         console.log("失敗");
+        //         console.log(jqXHR,textStatus,errorThrown);
+        //     });
+        //     // var data = [{id:"1",name:"太郎",email:"info+002@example.com",age:"19",created_at:"2020-08-08 04:11",updated_at:"2020-08-18 04:11"},{id:"2",name:"B太郎",email:"info+009@example.com",age:"29",created_at:"2020-08-08 04:11",updated_at:"2020-08-18 04:11"}];
+        //     // setData(data);
+        //     // $.each(data,function(index,val){
+        //     //     var name = $('<td></td>',{class:"col-xs-2"}).text(val["name"]);
+        //     //     var email = $('<td></td>',{class:"col-xs-2"}).text(val["email"]);
+        //     //     var age = $('<td></td>',{class:"col-xs-1"}).text(val["age"]);
+        //     //     var created_at = $('<td></td>',{class:"col-xs-2"}).text(val["created_at"]);
+        //     //     var updated_at = $('<td></td>',{class:"col-xs-2"}).text(val["updated_at"]);
+        //     //     var modify_btn = $('<td></td>',{class:"col-xs-1"}).append($('<button>',{
+        //     //         class : "btn btn-primary btn-sm modify_btn",
+        //     //         "data-id" : val["id"],
+        //     //         type:"button"
+        //     //     }).text("編集"));
+        //     //     var delete_btn = $('<td></td>',{class:"col-xs-2"}).append($('<button></button>',{
+        //     //         class : "btn btn-danger btn-sm delete_btn",
+        //     //         "data-id" : val["id"],
+        //     //         type:"button"
+        //     //     }).text("削除"));
+        //     //     var data_recode = $('<tr></tr>',{
+        //     //     'data-area-id':val["id"]
+        //     //     }).append(name).append(email).append(age).append(created_at).append(updated_at).append(modify_btn).append(delete_btn);
+        //     //     $('.data_area').append(
+        //     //         data_recode
+        //     //     ).fadeIn(300);
+        //     //     console.log(index,val);
+        //     // });
+            
+            
+        //     // location.href = '{{route('sample001.update')}}?id=' + id;
+        //     return false;
+        // });
+        var delete_event = function(event){
             var id = $(this).data('id');
             
             var check_flg = confirm('削除してよろしいですか？');
@@ -92,7 +138,78 @@
             }
             
                 
-        });
+        }
+        var update_event = function(event){
+            var id = $(this).data('id');
+            
+            location.href = '{{route('sample001.update')}}?id=' + id;
+        }
+        $('.search_btn').on('click',search_event)
+        $('.modify_btn').on('click',update_event);
+        $('.delete_btn').on('click',delete_event);
+
+        
+        // var delete_event = $('.delete_btn').on('click',function(event){
+        //     var id = $(this).data('id');
+            
+        //     var check_flg = confirm('削除してよろしいですか？');
+        //     if(check_flg == true){
+        //         $.ajax(
+        //         {
+        //             url: '{{ route('sample001ajax.delete') }}'
+        //             ,type: 'post'
+        //             ,data:
+        //             {
+        //                 'id' : id
+        //             }
+        //             ,dataType: "json"
+        //             // 成功
+                    
+        //         }).done(function(data,textStatus,jqXHR){
+        //             console.log("成功");
+        //             console.log(data,textStatus,jqXHR);
+
+        //             // フェードアウトアニメーション
+        //             $('[data-area-id="' + id + '"]').fadeOut(500,function(){
+        //                 $(this).remove();
+        //             });
+        //         }).fail(function(jqXHR,textStatus,errorThrown){
+        //             console.log("失敗");
+        //             console.log(jqXHR,textStatus,errorThrown);
+        //         });
+        //     }
+            
+                
+        // });
+        function setData(data){
+            $.each(data,function(index,val){
+                var name = $('<td></td>',{class:"col-xs-2"}).text(val["name"]);
+                var email = $('<td></td>',{class:"col-xs-2"}).text(val["email"]);
+                var age = $('<td></td>',{class:"col-xs-1"}).text(val["age"]);
+                var created_at = $('<td></td>',{class:"col-xs-2"}).text(val["created_at"]);
+                var updated_at = $('<td></td>',{class:"col-xs-2"}).text(val["updated_at"]);
+                var modify_btn = $('<td></td>',{class:"col-xs-1"}).append($('<button>',{
+                    class : "btn btn-primary btn-sm modify_btn",
+                    "data-id" : val["id"],
+                    type:"button"
+                }).text("編集"));
+                var delete_btn = $('<td></td>',{class:"col-xs-2"}).append($('<button></button>',{
+                    class : "btn btn-danger btn-sm delete_btn",
+                    "data-id" : val["id"],
+                    type:"button"
+                }).text("削除"));
+                delete_btn.on('click',delete_event);
+                // delete_btn.addEventListener('click',function(){
+                //     alert("クリックしたでー");
+                // });
+                var data_recode = $('<tr></tr>',{
+                'data-area-id':val["id"]
+                }).append(name).append(email).append(age).append(created_at).append(updated_at).append(modify_btn).append(delete_btn);
+                $('.data_area').append(
+                    data_recode
+                ).fadeIn(300);
+            });
+        }
     });
     </script>
     
@@ -106,7 +223,7 @@
 
         </div>
         <div class="">
-            <form class="form-row" action="{{ route('sample001.index') }}" method="post">
+            <form class="form-row" method="post">
                 {{ csrf_field() }}
                 <div class="form-group col-sm-6">
                     <label for="text4a">名前</label>
@@ -117,7 +234,6 @@
                     <input type="text" class="form-control" id="email" name="email" placeholder="メール" value="{{old('email')}}">
                 </div>
                 <div class="clearfix w-100">
-                    <button type="submit" class="btn btn-info btn-sm float-right">検索</button>
                     <button class="btn btn-info btn-sm float-right search_btn mr-3" onclick="return false;">ajax検索</button>
                 </div>
             </form>
