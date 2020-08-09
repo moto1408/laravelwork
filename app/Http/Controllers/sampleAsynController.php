@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Models\User;
 use Illuminate\Http\Request;
 use log;
+use DB;
 
 class sampleAsynController extends Controller
 {
@@ -20,9 +21,15 @@ class sampleAsynController extends Controller
         $ModelUser = new User;
         $recodes = array();
         $recodes =  $ModelUser->getTableData($request);
-		
-		return view('sampleAsyn.index',compact('recodes'));
+        
+        $pageName = 'ユーザー';
+        
+		return view('sampleAsyn.index',compact('recodes','pageName'));
     }
+
+    /*********************************
+     * Ajax 
+     *********************************/
     /**
      * 非同期通信検索処理
      *
@@ -43,7 +50,7 @@ class sampleAsynController extends Controller
             // 返答値を準備する
             $response = array();
             $response['list'] = $recodes;
-            $response['result'] = 'success';
+            $response['status'] = 'success';
             $response['message'] = '検索に成功しました。';
             $responseJson = response()->json($response);
             return $responseJson;
@@ -52,7 +59,53 @@ class sampleAsynController extends Controller
             // 返答値を準備する
             $response = array();
             $response['list'] = array();
-            $response['result'] = 'failure';
+            $response['status'] = 'failure';
+            $response['message'] = '通信に失敗しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }
+    }
+    /**
+     * 削除を行う
+     * 
+     * @param $request
+     * @return JSON
+     */
+	public function ajaxDelete(Request $request){
+        
+        try{
+            $id = $request->input('id','');
+            if(empty($id)){
+                throw new \Exception('idがありません');
+            }
+            // モデル呼び出し
+		    $ModelUser = new User;
+            // トランザクション用意
+            DB::beginTransaction();
+
+            // // 削除実行
+            $recode = $ModelUser->dataDelete($id);
+            $delName = $recode->name;
+            
+            // コミット
+			DB::commit();
+            
+            // 返答値を準備する
+            $response = array();
+            $response['id'] = $id;
+            $response['status'] = 'success';
+            $response['message'] = sprintf("「%s」を削除しました。",$delName);
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }catch(\Exception $e){
+            // エラー内容ログ出力する
+            \Log::info($e);
+            // ロールバック
+            DB::rollback();
+            
+            // 返答値を準備する
+            $response = array();
+            $response['status'] = 'failure';
             $response['message'] = '通信に失敗しました。';
             $responseJson = response()->json($response);
             return $responseJson;

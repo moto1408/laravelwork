@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Laravel</title>
+    <title>{{$pageName}}</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
     <link href="{{ asset('/bootstrap/css/bootstrap.css') }}" rel="stylesheet" type="text/css">
     <script src="{{ asset('/js/jquery-3.5.1.js') }}"></script>
     <script src="{{ asset('/bootstrap/js/bootstrap.js') }}"></script>
+    <script src="{{ asset('/js/common.js') }}"></script>
+    <script src="{{ asset('\sampleAsyn\js\index.js') }}"></script>
     <script>
     $(document).ready(function(){
         $.ajaxSetup({
@@ -21,32 +23,48 @@
             }
         });
         var search_event = function(event){
+            // 一覧表示クリアする
+            $('.data_area').empty();
+
+            // 送信データ準備する
             var name = $('#name').val();
             var email = $('#email').val();
+            var param =
+            [
+                ['name' , name],
+                ['email' , email]
+            ];
             
-            $('.data_area').empty().fadeOut(300);
+            var type = 'post';
+            // 通信先URL
+            var actionUrl = '{{ route('sampleAsyn.ajax.ajaxSearch') }}';
+            
+            var successCallBack = function(data){
+                // 一覧表示する
+                setData(data['list']);
 
-            $.ajax(
-            {
-                url: '{{ route('sampleAsyn.ajax.ajaxSearch') }}'
-                ,type: 'post'
-                ,data:
-                {
-                    'name'  : name,
-                    'email' : email
-                }
-                ,dataType: "json"
-                // 成功
-                
-            }).done(function(data,textStatus,jqXHR){
-                console.log("成功");
-                console.log([data,textStatus,jqXHR]);
-                setData(data);
-                
-            }).fail(function(jqXHR,textStatus,errorThrown){
-                console.log("失敗");
-                console.log([jqXHR,textStatus,errorThrown]);
-            });
+                // メッセージエリア初期化する
+                $('.alert_aler').empty();
+
+                // メッセージDOM作成
+                var alertDom = getAlertDom('primary',data['message']);
+
+                // メッセージ要素を表示する
+                $('.alert_aler').append(alertDom).hide().fadeIn(300);
+            }
+            var errorCallBack = function(data){
+                // メッセージエリア初期化する
+                $('.alert_aler').empty();
+
+                // メッセージDOM作成
+                var alertDom = getAlertDom('danger',data['message']);
+
+                // メッセージ要素を表示する
+                $('.alert_aler').append(alertDom).hide().fadeIn(300);
+            }
+            // 通信実行
+            ajax(type,actionUrl, param, successCallBack, errorCallBack)
+
             return false;
         }
         // $('.search_btn').on('click',function(event){
@@ -107,37 +125,48 @@
         //     // location.href = '{{route('sample001.update')}}?id=' + id;
         //     return false;
         // });
+        
+        
+        
+        var successCallBackDelete = function(data){
+            // メッセージエリア初期化する
+            $('.alert_aler').empty();
+
+            // メッセージDOM作成
+            var alertDom = getAlertDom('primary',data['message']);
+
+            // メッセージ要素を表示する
+            $('.alert_aler').append(alertDom).hide().fadeIn(300);
+
+            // フェードアウトアニメーション
+            $('[data-area-id="' + data.id + '"]').fadeOut(500,function(){
+                $(this).remove();
+            });
+        }
+        var errorCallBackDelete = function(data){
+            // メッセージエリア初期化する
+            $('.alert_aler').empty();
+
+            // メッセージDOM作成
+            var alertDom = getAlertDom('danger',data['message']);
+
+            // メッセージ要素を表示する
+            $('.alert_aler').append(alertDom).hide().fadeIn(300);
+        }
+        
         var delete_event = function(event){
-            var id = $(this).data('id');
             
             var check_flg = confirm('削除してよろしいですか？');
             if(check_flg == true){
-                $.ajax(
-                {
-                    url: '{{ route('sample001ajax.delete') }}'
-                    ,type: 'post'
-                    ,data:
-                    {
-                        'id' : id
-                    }
-                    ,dataType: "json"
-                    // 成功
-                    
-                }).done(function(data,textStatus,jqXHR){
-                    console.log("成功");
-                    console.log(data,textStatus,jqXHR);
+                var id = $(this).data('id');
+                var type = 'post';    
+                var param = {'id' : id};
+                // 通信先URL
+                var actionUrl = '{{ route('sampleAsyn.ajax.ajaxDelete') }}';
 
-                    // フェードアウトアニメーション
-                    $('[data-area-id="' + id + '"]').fadeOut(500,function(){
-                        $(this).remove();
-                    });
-                }).fail(function(jqXHR,textStatus,errorThrown){
-                    console.log("失敗");
-                    console.log(jqXHR,textStatus,errorThrown);
-                });
-            }
-            
-                
+                // 通信実行
+                ajax(type,actionUrl, param, successCallBackDelete, errorCallBackDelete)
+            } 
         }
         var update_event = function(event){
             var id = $(this).data('id');
@@ -145,44 +174,12 @@
             location.href = '{{route('sample001.update')}}?id=' + id;
         }
         $('.search_btn').on('click',search_event)
-        $('.modify_btn').on('click',update_event);
+        $('.update_btn').on('click',update_event);
         $('.delete_btn').on('click',delete_event);
 
-        
-        // var delete_event = $('.delete_btn').on('click',function(event){
-        //     var id = $(this).data('id');
-            
-        //     var check_flg = confirm('削除してよろしいですか？');
-        //     if(check_flg == true){
-        //         $.ajax(
-        //         {
-        //             url: '{{ route('sample001ajax.delete') }}'
-        //             ,type: 'post'
-        //             ,data:
-        //             {
-        //                 'id' : id
-        //             }
-        //             ,dataType: "json"
-        //             // 成功
-                    
-        //         }).done(function(data,textStatus,jqXHR){
-        //             console.log("成功");
-        //             console.log(data,textStatus,jqXHR);
-
-        //             // フェードアウトアニメーション
-        //             $('[data-area-id="' + id + '"]').fadeOut(500,function(){
-        //                 $(this).remove();
-        //             });
-        //         }).fail(function(jqXHR,textStatus,errorThrown){
-        //             console.log("失敗");
-        //             console.log(jqXHR,textStatus,errorThrown);
-        //         });
-        //     }
-            
-                
-        // });
         function setData(data){
             $.each(data,function(index,val){
+                // レコード情報をDOM要素にセットする
                 var name = $('<td></td>',{class:"col-xs-2"}).text(val["name"]);
                 var email = $('<td></td>',{class:"col-xs-2"}).text(val["email"]);
                 var age = $('<td></td>',{class:"col-xs-1"}).text(val["age"]);
@@ -198,16 +195,18 @@
                     "data-id" : val["id"],
                     type:"button"
                 }).text("削除"));
+
+                // イベントセット
+                modify_btn.on('click',update_event);
                 delete_btn.on('click',delete_event);
-                // delete_btn.addEventListener('click',function(){
-                //     alert("クリックしたでー");
-                // });
+                
                 var data_recode = $('<tr></tr>',{
                 'data-area-id':val["id"]
                 }).append(name).append(email).append(age).append(created_at).append(updated_at).append(modify_btn).append(delete_btn);
+
                 $('.data_area').append(
                     data_recode
-                ).fadeIn(300);
+                ).hide().fadeIn(1);
             });
         }
     });
@@ -234,17 +233,23 @@
                     <input type="text" class="form-control" id="email" name="email" placeholder="メール" value="{{old('email')}}">
                 </div>
                 <div class="clearfix w-100">
-                    <button class="btn btn-info btn-sm float-right search_btn mr-3" onclick="return false;">ajax検索</button>
+                    <button class="btn btn-info btn-sm float-right search_btn mr-3" onclick="return false;">検索</button>
                 </div>
             </form>
         </div>
+
+        <div class="alert_aler"></div>
+
+        <div class="alert alert-primary mt-2 d-none" role="alert">
+            <span class="message_display"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
         <div class="row mt-5">
             <div class="clearfix w-100">
-                <button type="submit" class="btn btn-warning btn-sm float-right" onclick="location.href='{{ route('sample001.add') }}';return false;">新規登録</button>
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal">
-                Launch demo modal
-                </button>
+                <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#formModal">新規登録</button>
             </div>
         </div>
         
@@ -270,7 +275,7 @@
                             <td>{{ $recode->age }}</td>
                             <td>{{ $recode->created_at }}</td>
                             <td>{{ $recode->updated_at }}</td>
-                            <td><button type="button" class="btn btn-primary btn-sm modify_btn" data-id="{{ $recode->id }}">編集</button></td>
+                            <td><button type="button" class="btn btn-primary btn-sm update_btn" data-id="{{ $recode->id }}">編集</button></td>
                             <td><button type="button" class="btn btn-danger btn-sm delete_btn" data-id="{{ $recode->id }}">削除</button></td>
                         </tr>
                         @endforeach
@@ -280,24 +285,45 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
+    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalLabel">{{$pageName}}<span>登録</span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend w-25">
+                            <span class="input-group-text w-100" id="inputGroup-sizing-sm">名前</span>
+                        </div>
+                        <input type="text" id="form_name" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend w-25">
+                            <span class="input-group-text w-100" id="inputGroup-sizing-sm">メールアドレス</span>
+                        </div>
+                        <input type="text" id="form_email" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend w-25">
+                            <span class="input-group-text w-100" id="inputGroup-sizing-sm">年齢</span>
+                        </div>
+                        <input type="number" id="form_age" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-            ...
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-        </div>
-    </div>
     </div>
 </body>
 </html>

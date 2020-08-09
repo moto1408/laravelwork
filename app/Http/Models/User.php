@@ -23,6 +23,7 @@ class User extends Model
         $email = $request->input('email','');
         $where[] = array('name','like','%' . $name . '%');
         $where[] = array('email','like','%' . $email . '%');
+
         // 検索を実行する
         $recodes = $this->select([DB::raw('SQL_CALC_FOUND_ROWS *')])
                         ->where($where)
@@ -81,5 +82,24 @@ class User extends Model
         }
 
         return $id;
+    }
+    /**
+     * 対象のデータを削除する関数
+     * request Request 
+     * id
+     */
+    public function dataDelete($id=null){
+
+        if($id == null){
+            throw new Exception('no-data');
+        }
+        // 削除実行
+        $target = $this::find($id);
+        // 削除データの名前を取得する
+        $delName = $target->name;
+        // 削除を実行する
+        $target->delete();
+
+        return $target;
     }
 }
