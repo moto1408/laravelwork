@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use log;
 use App\Http\Models\User;
 use Illuminate\Http\Request;
-use log;
 use DB;
 
 class sampleAsynController extends Controller
 {
+    public function __construct()
+	{
+		// parent::__construct();
+		\Log::info(__FILE__ . ":" . __LINE__);
+		
+	}
     /**
      * Display a listing of the resource.
      *
