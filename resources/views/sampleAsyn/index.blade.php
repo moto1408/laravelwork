@@ -140,6 +140,68 @@ $(document).ready(function(){
             ).hide().fadeIn(1);
         });
     }
+    var successCallBackUpsert = function(data){
+
+        // モーダルエラーメッセージ初期化する
+        $('.modal-alert').empty();
+        // モーダルを閉じる
+        $('#formModal').modal('hide');
+
+
+        // 一覧表示する
+        setData(data['list']);
+
+
+        // メッセージエリア初期化する
+        $('.alert_aler').empty();
+        // メッセージDOM作成
+        var alertDom = getAlertDom('primary',data['message']);
+        // メッセージ要素を表示する
+        $('.alert_aler').append(alertDom).hide().fadeIn(300);
+
+    }
+    var errorCallBackUpsert = function(data){
+        // モーダルメッセージエリア取得する
+        var modalAlertDom = $('.modal-alert');
+        // メッセージエリア初期化する
+        modalAlertDom.empty();
+        $.each(data.errors,function(index,value){
+            // メッセージDOM作成と出力を行う
+            var alertDom = getAlertDom('danger',value);
+            modalAlertDom.append(alertDom );
+            
+        });
+    }
+    
+    var upsert_event = function(event){
+
+        var id = $('[data-modal-form="id"]').val();
+        var updated_at = $('[data-modal-form="updated_at"]').val();
+        var name = $('[data-modal-form="name"]').val();
+        var email = $('[data-modal-form="email"]').val();
+        var age = $('[data-modal-form="age"]').val();
+        
+        
+        var type = 'post';    
+        var param = 
+        {
+            'id' : id,
+            'updated_at':updated_at,
+            'name':name,
+            'email':email,
+            'age':age
+        };
+        // 通信先URL
+        var actionUrl = '{{ route('sampleAsyn.ajax.ajaxUpsert') }}';
+
+        // 通信実行
+        ajax(type,actionUrl, param, successCallBackUpsert, errorCallBackUpsert)
+    }
+    $('.modal-footer>.submit').on('click',upsert_event);
+    // $('.modal-footer>.submit').on('click',function(){
+        
+    // });
+
 });
 </script>
 @endsection
@@ -225,31 +287,34 @@ $(document).ready(function(){
             </div>
             <div class="modal-body">
 
+                <div class="modal-alert"></div>
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend w-25">
                         <span class="input-group-text w-100" id="inputGroup-sizing-sm">名前</span>
                     </div>
-                    <input type="text" id="form_name" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    <input type="text" data-modal-form="name" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
                 </div>
 
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend w-25">
                         <span class="input-group-text w-100" id="inputGroup-sizing-sm">メールアドレス</span>
                     </div>
-                    <input type="text" id="form_email" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    <input type="text" data-modal-form="email" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
                 </div>
 
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend w-25">
                         <span class="input-group-text w-100" id="inputGroup-sizing-sm">年齢</span>
                     </div>
-                    <input type="number" id="form_age" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
+                    <input type="number" data-modal-form="age" class="form-control" aria-label="Sizing input" aria-describedby="inputGroup-sizing-sm">
                 </div>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
-                <button type="button" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-primary submit">保存</button>
+                <input type="hidden" data-modal-form="updated_at" value="">
+                <input type="hidden" data-modal-form="id" value="">
             </div>
         </div>
     </div>

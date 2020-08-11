@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use log;
+use DB;
 use App\Http\Models\User;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\Validator;
+
 
 class sampleAsynController extends Controller
 {
@@ -72,6 +74,71 @@ class sampleAsynController extends Controller
         }
     }
     /**
+     * 非同期通信検索処理
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return Json
+     */
+    public function ajaxUpsert(Request $request)
+    {
+        try{
+            // idを取得する
+            $id = $request->input('id','');
+            $resultName = $request->input('name','');
+            // 入力チェック定義を取得する
+            $validate_rule = $this->getValidate($id);
+
+            // 入力チェックを実行する
+            $validator = validator::make($request->all(),$validate_rule);
+
+            // エラー有無チェック
+            if ($validator->fails()) {
+                \Log::info($validator->errors());
+                // 返答値を準備する
+                $response = array();
+                $response['list'] = array();
+                $response['status'] = 'failure';
+                $response['message'] = '';
+                $response['errors'] = $validator->errors();
+                $responseJson = response()->json($response);
+                return $responseJson;    
+            }
+            // モデル呼び出し
+            $ModelUser = new User;
+            // トランザクション用意
+            DB::beginTransaction();
+            
+            // データ登録・更新を行う
+            $ModelUser->upsert($request,$id);
+            // コミット
+            DB::commit();
+            
+            // 検索実行
+            $recodes = array();
+            $recodes =  $ModelUser->getTableData();
+            
+            
+            // 返答値を準備する
+            $response = array();
+            $response['list'] = $recodes;
+            $response['status'] = 'success';
+            $response['message'] = sprintf('「%s」を登録しました。',$resultName);
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }catch(\Exception $e){
+            // ロールバック
+            DB::rollback();
+            \Log::info($e);
+            // 返答値を準備する
+            $response = array();
+            $response['list'] = array();
+            $response['status'] = 'failure';
+            $response['message'] = '通信に失敗しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }
+    }
+    /**
      * 削除を行う
      * 
      * @param $request
@@ -117,70 +184,23 @@ class sampleAsynController extends Controller
             return $responseJson;
         }
     }
-
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Private Function
      */
-    public function create()
-    {
-        //
-    }
+    // 登録・更新処理
+	private function getValidate($id=null){
+		$user = User::find($id);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+		// 入力チェック条件指定する
+		$validate_rule;
+		// 名前｜必須
+		$validate_rule['name'] = 'required';
+		// メール｜フォーマット
+		$validate_rule['email'] = !empty($user->id) ? 'required|email|unique:users,email,' . $user->id . ',id' : 'required|email|unique:users,email';
+		//　年齢｜数値、0～150
+        $validate_rule['age'] = 'numeric|between:0,150';
+        
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Http\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Http\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(User $user)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Http\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, User $user)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Http\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
-    {
-        //
-    }
+		return $validate_rule;
+	}
 }

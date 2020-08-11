@@ -67,7 +67,12 @@ class User extends Model
             $id = $request->input($primaryKey);
             $this
                 // 更新対象を指定する
-                ->where($primaryKey,$id)
+                ->where(
+                    [
+                        $primaryKey=>$id
+                        ,'updated_at'=>$request->input('updated_at')
+                    ]
+                )
                 // 更新内容をセットする
                 ->update($param);
         }

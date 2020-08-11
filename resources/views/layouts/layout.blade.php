@@ -25,12 +25,12 @@
         </nav>
         <div class="collapse" id="navbarToggleExternalContent">
             <div class="bg-dark p-4">
-                <h5 class="text-white h4">Collapsed content</h5>
-                <span class="text-muted">Toggleable via the navbar brand.</span>
+                <h5 class="text-white h4"><a class="text-white" href="{{ route('sampleAsyn.index') }}" class="text-muted">ユーザー非同期</a></h5>
+                <h5 class="text-white h4"><a class="text-white" href="{{ route('sample001.index') }}" class="text-muted">ユーザー同期</a></h5>
             </div>
         </div>
-    
     </div>
+
     <div class="container">
         @yield('content')
     </div>
