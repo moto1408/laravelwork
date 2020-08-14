@@ -101,8 +101,29 @@ $(document).ready(function(){
     }
     var update_event = function(event){
         var id = $(this).data('id');
+        var type = 'post';    
+        var param = {'id' : id};
+
+        // 通信先URL
+        var actionUrl = '{{ route('sampleAsyn.ajax.ajaxGetData') }}';
         
-        location.href = '{{route('sample001.update')}}?id=' + id;
+        var successCallBack = function(data){
+            // 入力項目初期化
+            $('[data-modal-form="id"]').val([data.record['id']]);
+            $('[data-modal-form="updated_at"]').val([data.record['updated_at']]);
+            $('[data-modal-form="name"]').val([data.record['name']]);
+            $('[data-modal-form="email"]').val([data.record['email']]);
+            $('[data-modal-form="age"]').val([data.record['age']]);
+
+            $('#formModal').modal('show');
+        }
+        var errorCallBack = function(data){
+            alert(data['message']);
+        }
+        // 通信実行
+        ajax(type,actionUrl, param, successCallBack, errorCallBack)
+
+        // location.href = '{{route('sample001.update')}}?id=' + id;
     }
     $('.search_btn').on('click',search_event)
     $('.update_btn').on('click',update_event);
@@ -111,25 +132,25 @@ $(document).ready(function(){
     function setData(data){
         $.each(data,function(index,val){
             // レコード情報をDOM要素にセットする
-            var name = $('<td></td>',{class:"col-xs-2"}).text(val["name"]);
-            var email = $('<td></td>',{class:"col-xs-2"}).text(val["email"]);
-            var age = $('<td></td>',{class:"col-xs-1"}).text(val["age"]);
-            var created_at = $('<td></td>',{class:"col-xs-2"}).text(val["created_at"]);
-            var updated_at = $('<td></td>',{class:"col-xs-2"}).text(val["updated_at"]);
-            var modify_btn = $('<td></td>',{class:"col-xs-1"}).append($('<button>',{
+            var name = $('<td></td>').text(val["name"]);
+            var email = $('<td></td>').text(val["email"]);
+            var age = $('<td></td>').text(val["age"]);
+            var created_at = $('<td></td>').text(val["created_at"]);
+            var updated_at = $('<td></td>').text(val["updated_at"]);
+            var modify_btn = $('<td></td>').append($('<button>',{
                 class : "btn btn-primary btn-sm modify_btn",
                 "data-id" : val["id"],
                 type:"button"
             }).text("編集"));
-            var delete_btn = $('<td></td>',{class:"col-xs-2"}).append($('<button></button>',{
+            var delete_btn = $('<td></td>').append($('<button></button>',{
                 class : "btn btn-danger btn-sm delete_btn",
                 "data-id" : val["id"],
                 type:"button"
             }).text("削除"));
 
             // イベントセット
-            modify_btn.on('click',update_event);
-            delete_btn.on('click',delete_event);
+            modify_btn.find('button').on('click',update_event);
+            delete_btn.find('button').on('click',delete_event);
             
             var data_recode = $('<tr></tr>',{
             'data-area-id':val["id"]
@@ -138,6 +159,7 @@ $(document).ready(function(){
             $('.data_area').append(
                 data_recode
             ).hide().fadeIn(1);
+            
         });
     }
     var successCallBackUpsert = function(data){
@@ -147,10 +169,8 @@ $(document).ready(function(){
         // モーダルを閉じる
         $('#formModal').modal('hide');
 
-
         // 一覧表示する
         setData(data['list']);
-
 
         // メッセージエリア初期化する
         $('.alert_aler').empty();
@@ -198,9 +218,28 @@ $(document).ready(function(){
         ajax(type,actionUrl, param, successCallBackUpsert, errorCallBackUpsert)
     }
     $('.modal-footer>.submit').on('click',upsert_event);
-    // $('.modal-footer>.submit').on('click',function(){
-        
-    // });
+    
+    /**
+	 * Modal Event
+	 */
+    $('[data-toggle="modal"]').on('click',function(index,value){
+        $('#formModal').modal('show');
+    });
+    // モーダルhideメソッドを呼出イベント
+    $('#formModal').on('hide.bs.modal', function (event) {
+        // // Close Confirm
+        // var conf = confirm("編集は保存されませんが、閉じてよろしいですか？");
+        // if(conf == false){
+        //     return false;
+        // }
+
+        // 入力項目初期化
+        $('[data-modal-form="id"]').val([""]);
+        $('[data-modal-form="updated_at"]').val([""]);
+        $('[data-modal-form="name"]').val([""]);
+        $('[data-modal-form="email"]').val([""]);
+        $('[data-modal-form="age"]').val([""]);
+	});
 
 });
 </script>
@@ -208,8 +247,8 @@ $(document).ready(function(){
 
 {{-- コンテンツ部 --}}
 @section('content')
-<div class="row">
-    <h1>index page</h1>
+<div class="row mt-3">
+    <h1>{{$pageName}} マスタ</h1>
 </div>
 <div class="">
     <form class="form-row" method="post">

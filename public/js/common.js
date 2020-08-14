@@ -27,7 +27,7 @@ function ajax(type,actionUrl, param, successCallBack, errorCallBack) {
         return false;
     }).always(function(data){
         // --
-        console.log(data);
+        // console.log(data);
     });
 
 }

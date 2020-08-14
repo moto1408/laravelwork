@@ -79,6 +79,42 @@ class sampleAsynController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return Json
      */
+    public function ajaxGetData(Request $request)
+    {
+        try{
+            $id = $request->input('id','');
+            // モデル呼び出し
+		    $ModelUser = new User;
+            
+            // 検索実行
+            $recodes = array();
+            $recodes = $ModelUser->getTableDataById($id);
+            
+            
+            // 返答値を準備する
+            $response = array();
+            $response['record'] = $recodes;
+            $response['status'] = 'success';
+            $response['message'] = '検索に成功しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }catch(\Exception $e){
+            \Log::info($e);
+            // 返答値を準備する
+            $response = array();
+            $response['record'] = array();
+            $response['status'] = 'failure';
+            $response['message'] = '通信に失敗しました。';
+            $responseJson = response()->json($response);
+            return $responseJson;
+        }
+    }
+    /**
+     * 非同期通信検索処理
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return Json
+     */
     public function ajaxUpsert(Request $request)
     {
         try{

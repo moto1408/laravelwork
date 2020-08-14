@@ -19,10 +19,12 @@ class User extends Model
 
         // 条件を取得
         $where = array();
-        $name = $request->input('name','');
-        $email = $request->input('email','');
-        $where[] = array('name','like','%' . $name . '%');
-        $where[] = array('email','like','%' . $email . '%');
+        if(!empty($request)){
+            $name = $request->input('name','');
+            $email = $request->input('email','');
+            $where[] = array('name','like','%' . $name . '%');
+            $where[] = array('email','like','%' . $email . '%');
+        }
 
         // 検索を実行する
         $recodes = $this->select([DB::raw('SQL_CALC_FOUND_ROWS *')])
@@ -30,6 +32,16 @@ class User extends Model
                         ->get();
         return $recodes;
     }
+
+    public function getTableDataById($id=""){
+        if($id == null){
+            return array();
+        }
+        // 検索を実行する
+        $recodes = $this::find($id);
+        return $recodes;
+    }
+
     /**
      * 新規登録・更新登録を行う関数
      * request Request 
