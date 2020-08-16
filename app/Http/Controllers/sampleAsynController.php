@@ -34,6 +34,58 @@ class sampleAsynController extends Controller
         
 		return view('sampleAsyn.index',compact('recodes','pageName'));
     }
+    
+    public function export(Request $request)
+    {
+        $headers = [ //ヘッダー情報
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=csvexport.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function() 
+        {
+            
+            $createCsvFile = fopen('php://output', 'w'); //ファイル作成
+            
+            $columns = [ //1行目の情報
+                'reserved_date',
+                'checkin_date',
+                'total_price',
+            ];
+
+            mb_convert_variables('SJIS-win', 'UTF-8', $columns); //文字化け対策
+    
+            fputcsv($createCsvFile, $columns); //1行目の情報を追記
+
+            $bookingCurve = DB::table('csvimport');  // データベースのテーブルを指定
+
+            $bookingCurveResults = $bookingCurve  //データベースからデータ取得
+                ->select(['reserved_date'
+                , 'checkin_date' 
+                ,DB::raw('sum(total_price) as total_price')])
+                ->groupby('reserved_date')
+                ->get();
+        
+            foreach ($bookingCurveResults as $row) {  //データを1行ずつ回す
+                $csv = [
+                    $row->reserved_date,  //オブジェクトなので -> で取得
+                    $row->checkin_date,
+                    $row->total_price,
+                ];
+
+                mb_convert_variables('SJIS-win', 'UTF-8', $csv); //文字化け対策
+
+                fputcsv($createCsvFile, $csv); //ファイルに追記する
+            }
+            fclose($createCsvFile); //ファイル閉じる
+        };
+        
+        return response()->stream($callback, 200, $headers); //ここで実行
+        
+    }
 
     /*********************************
      * Ajax 

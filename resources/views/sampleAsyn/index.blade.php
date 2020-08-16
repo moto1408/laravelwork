@@ -14,6 +14,9 @@ $(document).ready(function(){
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+    /**
+     * Search
+     */
     var search_event = function(event){
         // 一覧表示クリアする
         $('.data_area').empty();
@@ -59,6 +62,9 @@ $(document).ready(function(){
 
         return false;
     }
+    /**
+     * Delete
+     */
     var successCallBackDelete = function(data){
         // メッセージエリア初期化する
         $('.alert_aler').empty();
@@ -99,6 +105,22 @@ $(document).ready(function(){
             ajax(type,actionUrl, param, successCallBackDelete, errorCallBackDelete)
         } 
     }
+    /**
+     * update
+     */
+    var successCallBack = function(data){
+        // 入力項目初期化
+        $('[data-modal-form="id"]').val([data.record['id']]);
+        $('[data-modal-form="updated_at"]').val([data.record['updated_at']]);
+        $('[data-modal-form="name"]').val([data.record['name']]);
+        $('[data-modal-form="email"]').val([data.record['email']]);
+        $('[data-modal-form="age"]').val([data.record['age']]);
+
+        $('#formModal').modal('show');
+    }
+    var errorCallBack = function(data){
+        alert(data['message']);
+    }
     var update_event = function(event){
         var id = $(this).data('id');
         var type = 'post';    
@@ -107,24 +129,66 @@ $(document).ready(function(){
         // 通信先URL
         var actionUrl = '{{ route('sampleAsyn.ajax.ajaxGetData') }}';
         
-        var successCallBack = function(data){
-            // 入力項目初期化
-            $('[data-modal-form="id"]').val([data.record['id']]);
-            $('[data-modal-form="updated_at"]').val([data.record['updated_at']]);
-            $('[data-modal-form="name"]').val([data.record['name']]);
-            $('[data-modal-form="email"]').val([data.record['email']]);
-            $('[data-modal-form="age"]').val([data.record['age']]);
-
-            $('#formModal').modal('show');
-        }
-        var errorCallBack = function(data){
-            alert(data['message']);
-        }
         // 通信実行
         ajax(type,actionUrl, param, successCallBack, errorCallBack)
-
-        // location.href = '{{route('sample001.update')}}?id=' + id;
     }
+    
+    var successCallBackUpsert = function(data){
+
+        // モーダルエラーメッセージ初期化する
+        $('.modal-alert').empty();
+        // モーダルを閉じる
+        $('#formModal').modal('hide');
+
+        // 一覧表示する
+        setData(data['list']);
+
+        // メッセージエリア初期化する
+        $('.alert_aler').empty();
+        // メッセージDOM作成
+        var alertDom = getAlertDom('primary',data['message']);
+        // メッセージ要素を表示する
+        $('.alert_aler').append(alertDom).hide().fadeIn(300);
+
+        }
+        var errorCallBackUpsert = function(data){
+        // モーダルメッセージエリア取得する
+        var modalAlertDom = $('.modal-alert');
+        // メッセージエリア初期化する
+        modalAlertDom.empty();
+        $.each(data.errors,function(index,value){
+            // メッセージDOM作成と出力を行う
+            var alertDom = getAlertDom('danger',value);
+            modalAlertDom.append(alertDom );
+            
+        });
+        }
+
+        var upsert_event = function(event){
+
+        var id = $('[data-modal-form="id"]').val();
+        var updated_at = $('[data-modal-form="updated_at"]').val();
+        var name = $('[data-modal-form="name"]').val();
+        var email = $('[data-modal-form="email"]').val();
+        var age = $('[data-modal-form="age"]').val();
+
+
+        var type = 'post';    
+        var param = 
+        {
+            'id' : id,
+            'updated_at':updated_at,
+            'name':name,
+            'email':email,
+            'age':age
+        };
+        // 通信先URL
+        var actionUrl = '{{ route('sampleAsyn.ajax.ajaxUpsert') }}';
+
+        // 通信実行
+        ajax(type,actionUrl, param, successCallBackUpsert, errorCallBackUpsert);
+    }
+    $('.modal-footer>.submit').on('click',upsert_event);
     $('.search_btn').on('click',search_event)
     $('.update_btn').on('click',update_event);
     $('.delete_btn').on('click',delete_event);
@@ -162,62 +226,6 @@ $(document).ready(function(){
             
         });
     }
-    var successCallBackUpsert = function(data){
-
-        // モーダルエラーメッセージ初期化する
-        $('.modal-alert').empty();
-        // モーダルを閉じる
-        $('#formModal').modal('hide');
-
-        // 一覧表示する
-        setData(data['list']);
-
-        // メッセージエリア初期化する
-        $('.alert_aler').empty();
-        // メッセージDOM作成
-        var alertDom = getAlertDom('primary',data['message']);
-        // メッセージ要素を表示する
-        $('.alert_aler').append(alertDom).hide().fadeIn(300);
-
-    }
-    var errorCallBackUpsert = function(data){
-        // モーダルメッセージエリア取得する
-        var modalAlertDom = $('.modal-alert');
-        // メッセージエリア初期化する
-        modalAlertDom.empty();
-        $.each(data.errors,function(index,value){
-            // メッセージDOM作成と出力を行う
-            var alertDom = getAlertDom('danger',value);
-            modalAlertDom.append(alertDom );
-            
-        });
-    }
-    
-    var upsert_event = function(event){
-
-        var id = $('[data-modal-form="id"]').val();
-        var updated_at = $('[data-modal-form="updated_at"]').val();
-        var name = $('[data-modal-form="name"]').val();
-        var email = $('[data-modal-form="email"]').val();
-        var age = $('[data-modal-form="age"]').val();
-        
-        
-        var type = 'post';    
-        var param = 
-        {
-            'id' : id,
-            'updated_at':updated_at,
-            'name':name,
-            'email':email,
-            'age':age
-        };
-        // 通信先URL
-        var actionUrl = '{{ route('sampleAsyn.ajax.ajaxUpsert') }}';
-
-        // 通信実行
-        ajax(type,actionUrl, param, successCallBackUpsert, errorCallBackUpsert)
-    }
-    $('.modal-footer>.submit').on('click',upsert_event);
     
     /**
 	 * Modal Event
@@ -247,10 +255,13 @@ $(document).ready(function(){
 
 {{-- コンテンツ部 --}}
 @section('content')
-<div class="row mt-3">
-    <h1>{{$pageName}} マスタ</h1>
+{{-- 見出し --}}
+<div class="row mt-3 w-100">
+    <h2 class="h2 border-bottom w-100 pb-2 mb-3">{{$pageName}} マスタ</h2>
 </div>
-<div class="">
+
+{{-- 検索エリア --}}
+<div class="p-3 bg-light rounded border">
     <form class="form-row" method="post">
         {{ csrf_field() }}
         <div class="form-group col-sm-6">
@@ -267,21 +278,21 @@ $(document).ready(function(){
     </form>
 </div>
 
+{{-- メッセージ表示 --}}
 <div class="alert_aler"></div>
 
-<div class="alert alert-primary mt-2 d-none" role="alert">
-    <span class="message_display"></span>
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-
+{{-- 機能ボタン --}}
 <div class="row mt-5">
     <div class="clearfix w-100">
         <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#formModal">新規登録</button>
+        
+        <p><i class="glyphicon glyphicon-home"></i>  Home &nbsp;&nbsp;</p>
+        <p><i class="glyphicon glyphicon-glass"></i>  Home &nbsp;&nbsp;</p>
+        <p><i class="fab fa-accessible-icon"></i>neko</p>
     </div>
 </div>
 
+{{-- 一覧表示 --}}
 <div class="row mt-3">
     <div class="table-responsive">
         <table class="table table-hover table-striped table-sm">
@@ -325,8 +336,9 @@ $(document).ready(function(){
                 </button>
             </div>
             <div class="modal-body">
-
+                {{-- モーダル用エラーメッセージ表示 --}}
                 <div class="modal-alert"></div>
+
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend w-25">
                         <span class="input-group-text w-100" id="inputGroup-sizing-sm">名前</span>
