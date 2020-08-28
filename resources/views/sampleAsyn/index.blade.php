@@ -285,10 +285,6 @@ $(document).ready(function(){
 <div class="row mt-5">
     <div class="clearfix w-100">
         <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#formModal">新規登録</button>
-        
-        <p><i class="glyphicon glyphicon-home"></i>  Home &nbsp;&nbsp;</p>
-        <p><i class="glyphicon glyphicon-glass"></i>  Home &nbsp;&nbsp;</p>
-        <p><i class="fab fa-accessible-icon"></i>neko</p>
     </div>
 </div>
 
