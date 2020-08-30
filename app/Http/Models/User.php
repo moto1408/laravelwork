@@ -19,16 +19,29 @@ class User extends Model
 
         // 条件を取得
         $where = array();
-        $name = $request->input('name','');
-        $email = $request->input('email','');
-        $where[] = array('name','like','%' . $name . '%');
-        $where[] = array('email','like','%' . $email . '%');
+        if(!empty($request)){
+            $name = $request->input('name','');
+            $email = $request->input('email','');
+            $where[] = array('name','like','%' . $name . '%');
+            $where[] = array('email','like','%' . $email . '%');
+        }
+
         // 検索を実行する
         $recodes = $this->select([DB::raw('SQL_CALC_FOUND_ROWS *')])
                         ->where($where)
                         ->get();
         return $recodes;
     }
+
+    public function getTableDataById($id=""){
+        if($id == null){
+            return array();
+        }
+        // 検索を実行する
+        $recodes = $this::find($id);
+        return $recodes;
+    }
+
     /**
      * 新規登録・更新登録を行う関数
      * request Request 
@@ -66,7 +79,12 @@ class User extends Model
             $id = $request->input($primaryKey);
             $this
                 // 更新対象を指定する
-                ->where($primaryKey,$id)
+                ->where(
+                    [
+                        $primaryKey=>$id
+                        ,'updated_at'=>$request->input('updated_at')
+                    ]
+                )
                 // 更新内容をセットする
                 ->update($param);
         }
@@ -81,5 +99,24 @@ class User extends Model
         }
 
         return $id;
+    }
+    /**
+     * 対象のデータを削除する関数
+     * request Request 
+     * id
+     */
+    public function dataDelete($id=null){
+
+        if($id == null){
+            throw new Exception('no-data');
+        }
+        // 削除実行
+        $target = $this::find($id);
+        // 削除データの名前を取得する
+        $delName = $target->name;
+        // 削除を実行する
+        $target->delete();
+
+        return $target;
     }
 }

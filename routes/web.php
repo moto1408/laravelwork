@@ -21,5 +21,9 @@ Route::get('/sample001/update', 'sample001Controller@update')->name('sample001.u
 Route::post('/sample001/ajaxDelete', 'sample001Controller@ajaxDelete')->name('sample001ajax.delete');
 
 Route::any('/sampleAsyn', 'sampleAsynController@index')->name('sampleAsyn.index');
-Route::any('/sampleAsynAjax', 'sampleAsynController@index')->name('sampleAsynAjax.index');
+// Route::any('/sampleAsyn', 'sampleAsynController@index')->name('sampleAsyn.index');
+// Route::any('/sampleAsynAjax', 'sampleAsynController@index')->name('sampleAsynAjax.index');
 Route::post('/sampleAsyn/ajax/search', 'sampleAsynController@ajaxSearch')->name('sampleAsyn.ajax.ajaxSearch');
+Route::post('/sampleAsyn/ajax/delete', 'sampleAsynController@ajaxDelete')->name('sampleAsyn.ajax.ajaxDelete');
+Route::post('/sampleAsyn/ajax/upsert', 'sampleAsynController@ajaxUpsert')->name('sampleAsyn.ajax.ajaxUpsert');
+Route::post('/sampleAsyn/ajax/getData', 'sampleAsynController@ajaxGetData')->name('sampleAsyn.ajax.ajaxGetData');
