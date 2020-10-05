@@ -27,3 +27,11 @@ Route::post('/sampleAsyn/ajax/search', 'sampleAsynController@ajaxSearch')->name(
 Route::post('/sampleAsyn/ajax/delete', 'sampleAsynController@ajaxDelete')->name('sampleAsyn.ajax.ajaxDelete');
 Route::post('/sampleAsyn/ajax/upsert', 'sampleAsynController@ajaxUpsert')->name('sampleAsyn.ajax.ajaxUpsert');
 Route::post('/sampleAsyn/ajax/getData', 'sampleAsynController@ajaxGetData')->name('sampleAsyn.ajax.ajaxGetData');
+
+
+Route::any('/sampleOutputPdf', 'sampleOutputPdfController@index')->name('sampleOutputPdf.index');
+Route::any('/sampleOutputPdf/downloadPdf', 'sampleOutputPdfController@downloadPdf')->name('sampleOutputPdf.downloadPdf');
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
